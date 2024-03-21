@@ -31,14 +31,14 @@ nimp = 18  # number of imputations, k: default=1
 
 
 # trial for each r or j
-# up_10j = 10 # upper bound of 10*j
-up_r = 16  # upper bound of r
-diffsqs = np.empty((up_r, X.shape[1]))  # all sum of squared differences
+up_10j = 10 # upper bound of 10*j
+# up_r = 16  # upper bound of r
+diffsqs = np.empty((up_10j, X.shape[1]))  # all sum of squared differences
 diffsqs_mindex = np.empty((1, X.shape[1]), dtype=np.float32)  # sum of squared differences for each mindex
-for r in range(1, up_r+1):
-    # j = ten_j / 10
-    print('\nr:', r)
-    X_imps = forest_model.impute(repaint=True, r=r, j=0.1, k=nimp)   # REPAINT (slow, but better)
+for ten_j in range(1, up_10j+1):
+    j = ten_j / 10
+    print('\nj:', j)
+    X_imps = forest_model.impute(repaint=True, j=j, k=nimp)   # REPAINT (slow, but better)
     # print('imputations:', X_imps)
     diffsqs_mindex.fill(0)
     for mindex in mindexes:
@@ -53,7 +53,7 @@ for r in range(1, up_r+1):
         diffsq = (average - truth)**2    # squared difference
         print(f'diff^2:\n{diffsq}')
         diffsqs_mindex += diffsq
-    diffsqs[r - 1] = diffsqs_mindex
+    diffsqs[ten_j - 1] = diffsqs_mindex
     print(f'all sum of squared differences:\n{diffsqs}')
 print(f'all sum of squared differences:\n{diffsqs}')
 
@@ -63,12 +63,12 @@ print(f'standard deviations:\n{std_devs}')
 
 
 # visualization
-# x_axis = [ten_j / 10 for ten_j in range(1, len(diffsqs) + 1)]
-x_axis = range(1, up_r + 1)
+x_axis = [ten_j / 10 for ten_j in range(1, len(diffsqs) + 1)]
+# x_axis = range(1, up_r + 1)
 plt.plot(x_axis, diffsqs)
-plt.xlabel('r')
+plt.xlabel('j')
 plt.ylabel('Sum of Squared Differences')
-plt.title('Sum of Squared Differences vs r')
+plt.title('Sum of Squared Differences vs j')
 plt.legend(['Truth', 'X', 'Y'])
 plt.show()
 
@@ -84,8 +84,8 @@ for i in range(X.shape[1]):
     plt.plot(x_axis, diffsqs[:, i], color=colors[i])
     plt.errorbar(x_axis, diffsqs[:, i], yerr=std_devs[i], fmt='o', capsize=5, color=colors[i])
 plt.xlabel('Number of Imputations')
-plt.ylabel('Squared Difference')
-plt.title('Squared Difference vs Number of Imputations')
+plt.ylabel('Sum of Squared Difference')
+plt.title('Sum of Squared Difference vs Number of Imputations')
 plt.legend(['Truth', 'X', 'Y'])
 plt.show()
 '''
