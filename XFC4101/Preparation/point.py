@@ -33,6 +33,10 @@ def animate_keyframes(keyframes, width=500, height=500, fps=10):
     anim = animation.FuncAnimation(fig, update, frames=keyframes, interval=1000/fps, blit=True)
     plt.show()
 
+    output_file = 'animation.mp4'
+    anim.save(output_file, writer='ffmpeg')
+    print(f'Animation saved to {output_file}')
+
 
 num_frames = 100
 initial_position = (0, 0)

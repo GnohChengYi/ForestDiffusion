@@ -11,12 +11,13 @@ with open(keyframe_path, 'rb') as file:
 print('original:', keyframes)
 
 X = np.asarray(keyframes)
-forest_model = ForestDiffusionModel(X, n_t=50, duplicate_K=100, bin_indexes=[], cat_indexes=[], int_indexes=[], diffusion_type='vp', n_jobs=-1)
+# reduce n_t and duplicate_K for faster computation; default: n_t=50, duplicate_K=100
+forest_model = ForestDiffusionModel(X, n_t=50, duplicate_K=100, bin_indexes=[], cat_indexes=[], int_indexes=[0], diffusion_type='vp', n_jobs=-1)
 keyframes_generated = forest_model.generate(batch_size=len(keyframes))
 keyframes_generated = sorted(keyframes_generated, key=lambda x: x[0])
 print(keyframes_generated)
 
-def animate_keyframes(keyframes, width=500, height=500, fps=10):
+def animate_keyframes(keyframes, width=500, height=500, fps=10, output_file='animation.mp4'):
     fig, ax = plt.subplots()
     ax.set_xlim(0, width)
     ax.set_ylim(0, height)
@@ -32,6 +33,9 @@ def animate_keyframes(keyframes, width=500, height=500, fps=10):
 
     anim = animation.FuncAnimation(fig, update, frames=keyframes, interval=1000/fps, blit=True)
     plt.show()
+
+    anim.save(output_file, writer='ffmpeg')
+    print(f'Animation saved to {output_file}')
 
 
 width = 150
